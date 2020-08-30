@@ -38,6 +38,16 @@ ApplicationWindow {
             Layout.fillWidth: true
 
             color: "black"
+
+            ListView {
+                anchors.fill: parent
+
+                model: imageModel
+
+                delegate: Image {
+                    source: "image://images/" + model.uuid
+                }
+            }
         }
 
         Rectangle {

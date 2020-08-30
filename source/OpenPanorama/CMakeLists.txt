@@ -7,6 +7,12 @@ find_package(Qt5 COMPONENTS QuickControls2 Core Qml Quick Gui REQUIRED)
 set(SOURCE_FILES 
     gui.qrc
     OpenPanorama.cpp
+    ImageProviderWrapper.cpp
+    ImageProviderWrapper.hpp
+    PanoramaImage.cpp
+    PanoramaImage.hpp
+    PanoramaImageModel.cpp
+    PanoramaImageModel.hpp
 )
 
 add_executable(OpenPanorama ${SOURCE_FILES})
