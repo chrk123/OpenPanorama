@@ -55,3 +55,9 @@ void PanoramaImageModel::AddImageFromFile(QUrl filename) {
 
   endInsertRows();
 }
+
+void PanoramaImageModel::Reset() {
+  beginResetModel();
+  m_Images.clear();
+  endResetModel();
+}

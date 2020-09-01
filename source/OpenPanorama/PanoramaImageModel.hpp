@@ -14,6 +14,7 @@ class PanoramaImageModel : public QAbstractItemModel {
 
  public:
   Q_INVOKABLE void AddImageFromFile(QUrl filename);
+  Q_INVOKABLE void Reset();
 
   QHash<int, QByteArray> roleNames() const;
 

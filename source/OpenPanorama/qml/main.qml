@@ -17,7 +17,13 @@ ApplicationWindow {
     header: ToolBar {
         RowLayout {
             ToolButton {
-                text: qsTr("New...")
+                text: qsTr("New project")
+
+                onClicked: {
+                    if(imageModel.rowCount()) {
+                        resetDialog.open()
+                    }
+                }
             }
             ToolButton {
                 text: qsTr("Add new image")
@@ -131,10 +137,20 @@ ApplicationWindow {
 
     FileDialog {
         id: fileDialog
-        title: "Please choose a file"
+        title: "Please choose an image"
         folder: shortcuts.home
         onAccepted: {
             imageModel.AddImageFromFile(fileDialog.fileUrl)
+        }
+    }
+
+    Dialog {
+        id: resetDialog
+        title: "Reset project"
+        standardButtons: Dialog.Ok | Dialog.Cancel
+
+        onAccepted: {
+            imageModel.Reset()
         }
     }
 }
