@@ -15,8 +15,6 @@ int main(int argc, char **argv) {
 
   auto image_model = std::make_shared<PanoramaImageModel>();
   ImageProviderWrapper image_provider(image_model);
-  image_model->AddDummyImage();
-  image_model->AddDummyImage();
 
   QQmlApplicationEngine engine;
   engine.addImageProvider("images", &image_provider);

@@ -2,6 +2,7 @@ import QtQuick 2.12
 
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
+import QtQuick.Dialogs 1.3
 
 ApplicationWindow {
     id: mainWindow
@@ -19,7 +20,11 @@ ApplicationWindow {
                 text: qsTr("New...")
             }
             ToolButton {
-                text: qsTr("Add...")
+                text: qsTr("Add new image")
+
+                onClicked: {
+                    fileDialog.open()
+                }
             }
         }
     }
@@ -122,5 +127,14 @@ ApplicationWindow {
                 PropertyChanges { target: rightPane; Layout.preferredWidth: 0;}
             }
         ]
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            imageModel.AddImageFromFile(fileDialog.fileUrl)
+        }
     }
 }

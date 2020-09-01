@@ -1,5 +1,7 @@
 #pragma once
 
+#include <qurl.h>
+
 #include <QAbstractItemModel>
 #include <filesystem>
 #include <memory>
@@ -8,7 +10,11 @@
 #include "PanoramaImage.hpp"
 
 class PanoramaImageModel : public QAbstractItemModel {
+  Q_OBJECT
+
  public:
+  Q_INVOKABLE void AddImageFromFile(QUrl filename);
+
   QHash<int, QByteArray> roleNames() const;
 
   int columnCount(QModelIndex const& parent) const;
@@ -18,8 +24,6 @@ class PanoramaImageModel : public QAbstractItemModel {
                     QModelIndex const& parent = QModelIndex()) const;
   QModelIndex parent(QModelIndex const& index) const;
   QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
-
-  void AddDummyImage();
 
  private:
   std::vector<std::unique_ptr<PanoramaImage>> m_Images;

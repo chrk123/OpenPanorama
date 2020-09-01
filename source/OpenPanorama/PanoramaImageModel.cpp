@@ -46,9 +46,12 @@ QVariant PanoramaImageModel::data(QModelIndex const& index, int role) const {
   return QVariant();
 }
 
-void PanoramaImageModel::AddDummyImage() {
-  QImage img("/home/christoph/OpenPanorama/source/OpenPanorama/dummy.jpg");
+void PanoramaImageModel::AddImageFromFile(QUrl filename) {
+  int idx = rowCount(QModelIndex());
+  beginInsertRows(QModelIndex(), idx, idx);
 
-  auto pan_img = std::make_unique<PanoramaImage>(std::move(img));
-  m_Images.push_back(std::move(pan_img));
+  QImage img(filename.toLocalFile());
+  m_Images.push_back(std::make_unique<PanoramaImage>(std::move(img)));
+
+  endInsertRows();
 }
