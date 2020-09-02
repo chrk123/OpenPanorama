@@ -2,6 +2,7 @@
 
 #include <QImage>
 #include <QObject>
+#include <QPainter>
 #include <QUuid>
 
 class PanoramaImage : public QObject {

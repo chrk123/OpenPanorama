@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.3
 
+import OpenPanorama 1.0
+
 ApplicationWindow {
     id: mainWindow
 
@@ -50,7 +52,7 @@ ApplicationWindow {
 
             color: "black"
 
-            ListView {
+            /*ListView {
                 anchors.fill: parent
 
                 model: imageModel
@@ -58,6 +60,10 @@ ApplicationWindow {
                 delegate: Image {
                     source: "image://images/" + model.uuid
                 }
+            }*/
+            PanoramaPane {
+                anchors.fill: parent
+                model: imageModel
             }
         }
 

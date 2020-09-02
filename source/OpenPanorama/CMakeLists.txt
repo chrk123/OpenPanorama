@@ -13,6 +13,8 @@ set(SOURCE_FILES
     PanoramaImage.hpp
     PanoramaImageModel.cpp
     PanoramaImageModel.hpp
+    PanoramaPane.cpp
+    PanoramaPane.hpp
 )
 
 add_executable(OpenPanorama ${SOURCE_FILES})
