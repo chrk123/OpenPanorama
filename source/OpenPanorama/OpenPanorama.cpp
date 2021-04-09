@@ -2,7 +2,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <iostream>
 #include <memory>
 
 #include "ImageProviderWrapper.hpp"

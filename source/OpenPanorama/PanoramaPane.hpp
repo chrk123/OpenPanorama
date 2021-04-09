@@ -11,10 +11,13 @@ class PanoramaPane : public QQuickPaintedItem {
  public:
   explicit PanoramaPane(QQuickItem* parent = nullptr);
 
-  void paint(QPainter* painter);
+  void paint(QPainter* painter) override;
+
+  void mousePressEvent(QMouseEvent* event) override;
 
   void SetModel(QAbstractItemModel* model);
 
  private:
+  int m_Cols;
   QAbstractItemModel* m_Model;
 };

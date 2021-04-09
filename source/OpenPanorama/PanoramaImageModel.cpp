@@ -51,7 +51,9 @@ void PanoramaImageModel::AddImageFromFile(QUrl filename) {
   beginInsertRows(QModelIndex(), idx, idx);
 
   QImage img(filename.toLocalFile());
-  m_Images.push_back(std::make_unique<PanoramaImage>(std::move(img)));
+
+  if (!img.isNull())
+    m_Images.push_back(std::make_unique<PanoramaImage>(std::move(img)));
 
   endInsertRows();
 }
