@@ -8,8 +8,8 @@
 class ImageProviderWrapper : public QQuickImageProvider {
  public:
   explicit ImageProviderWrapper(std::shared_ptr<PanoramaImageModel> model);
-  QImage requestImage(const QString &id, QSize *size,
-                      const QSize &requestedSize);
+  QImage requestImage(QString const& id, QSize* size,
+                      QSize const& requestedSize);
 
  private:
   std::shared_ptr<PanoramaImageModel> m_ImageModel;
