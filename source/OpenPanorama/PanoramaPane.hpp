@@ -19,5 +19,6 @@ class PanoramaPane : public QQuickPaintedItem {
 
  private:
   int m_Cols;
+  int m_SelectedImage;
   QAbstractItemModel* m_Model;
 };

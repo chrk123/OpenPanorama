@@ -7,7 +7,7 @@
 #include <cmath>
 
 PanoramaPane::PanoramaPane(QQuickItem* parent)
-    : QQuickPaintedItem(parent), m_Cols{2} {
+    : QQuickPaintedItem(parent), m_Cols{2}, m_SelectedImage{-1} {
   setAcceptedMouseButtons(Qt::AllButtons);
   setFlag(ItemAcceptsInputMethod, true);
 }
@@ -36,6 +36,12 @@ void PanoramaPane::paint(QPainter* painter) {
     auto const img =
         m_Model->data(m_Model->index(i, 0), Qt::UserRole).value<QImage>();
     painter->drawImage(target, img, img.rect());
+
+    if (i == m_SelectedImage) {
+      painter->drawRect(QRectF{target.x(), target.y(),
+                               target.width() - painter->pen().widthF(),
+                               target.height() - painter->pen().widthF()});
+    }
   }
 }
 
@@ -64,6 +70,7 @@ void PanoramaPane::mousePressEvent(QMouseEvent* event) {
   int idx = idx_y * m_Cols + idx_x;
 
   if (idx < num_of_images) {
-    // do something with item at index idx
+    m_SelectedImage = idx;
+    update();
   }
 }
