@@ -2,8 +2,10 @@
 #include <qobjectdefs.h>
 #include <qquickpainteditem.h>
 #include <qwindowdefs.h>
-
 #include <QQuickPaintedItem>
+#include <QUuid>
+
+#include <map>
 
 class PanoramaPane : public QQuickPaintedItem {
   Q_OBJECT
@@ -17,8 +19,13 @@ class PanoramaPane : public QQuickPaintedItem {
 
   void SetModel(QAbstractItemModel* model);
 
+  public slots:
+    void OnModelChanged();
+
  private:
   int m_Cols;
-  int m_SelectedImage;
+  QUuid m_SelectedImage;
   QAbstractItemModel* m_Model;
+
+  std::map<QUuid, QRect> m_Locations;
 };

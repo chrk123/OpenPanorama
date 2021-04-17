@@ -1,4 +1,4 @@
-import QtQuick 2.12
+import QtQuick 2.15
 
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
@@ -61,9 +61,23 @@ ApplicationWindow {
                     source: "image://images/" + model.uuid
                 }
             }*/
-            PanoramaPane {
+
+            Flickable {
                 anchors.fill: parent
-                model: imageModel
+                contentHeight: pane.implicitHeight
+                contentWidth: pane.implicitWidth
+
+                flickableDirection: Flickable.HorizontalAndVerticalFlick
+
+                    ScrollBar.vertical: ScrollBar { }
+                    ScrollBar.horizontal: ScrollBar { }
+
+                PanoramaPane {
+                    id: pane
+
+                    anchors.fill: parent
+                    model: imageModel
+                }
             }
         }
 
@@ -105,7 +119,7 @@ ApplicationWindow {
                 anchors.leftMargin: 10
 
                 Text {
-                    text: qsTr("method:")
+                    text: pane.width + "|" + pane.implicitWidth
                 }
 
                 ComboBox {
