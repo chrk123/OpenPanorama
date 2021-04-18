@@ -59,8 +59,15 @@ ApplicationWindow {
 
                 flickableDirection: Flickable.HorizontalAndVerticalFlick
 
-                ScrollBar.vertical: ScrollBar { }
-                ScrollBar.horizontal: ScrollBar { }
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
+
+                ScrollBar.horizontal: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
+
+                interactive: false
 
                 PanoramaPane {
                     id: pane

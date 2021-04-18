@@ -17,7 +17,10 @@ class PanoramaPane : public QQuickPaintedItem {
   void paint(QPainter* painter) override;
 
   void mousePressEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
 
+  void UpdateImplicitSize();
   void SetModel(QAbstractItemModel* model);
 
  public slots:
@@ -28,4 +31,6 @@ class PanoramaPane : public QQuickPaintedItem {
   QAbstractItemModel* m_Model;
 
   std::map<QUuid, QRect> m_Locations;
+  QPoint m_MouseStartLocation;
+  QPoint m_Movement;
 };

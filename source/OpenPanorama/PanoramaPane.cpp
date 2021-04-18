@@ -39,7 +39,7 @@ void PanoramaPane::paint(QPainter* painter) {
   }
 }
 
-void PanoramaPane::OnModelChanged() {
+void PanoramaPane::UpdateImplicitSize() {
   auto const num_items = m_Model->rowCount();
 
   int max_x = 50;
@@ -65,6 +65,10 @@ void PanoramaPane::OnModelChanged() {
     }
   }
   setImplicitSize(max_x, max_y);
+}
+
+void PanoramaPane::OnModelChanged() {
+  UpdateImplicitSize();
   update();
 }
 
@@ -76,6 +80,9 @@ void PanoramaPane::SetModel(QAbstractItemModel* model) {
 }
 
 void PanoramaPane::mousePressEvent(QMouseEvent* event) {
+  // consume the event. do not propagate it further, e.g. to a parent element
+  event->accept();
+
   auto const& location = event->localPos().toPoint();
   auto const it = std::find_if(m_Locations.cbegin(), m_Locations.cend(),
                                [&location](auto const& key_val) {
@@ -84,6 +91,28 @@ void PanoramaPane::mousePressEvent(QMouseEvent* event) {
 
   if (it != m_Locations.cend()) {
     m_SelectedImage = it->first;
-    update();
+    m_MouseStartLocation = location;
+  } else {
+    m_SelectedImage = QUuid{};
   }
+
+  update();
+}
+
+void PanoramaPane::mouseMoveEvent(QMouseEvent* event) {
+  if (m_SelectedImage.isNull()) return;
+
+  event->accept();
+
+  auto movement = event->localPos().toPoint() - m_MouseStartLocation;
+  m_Locations.at(m_SelectedImage).translate(movement);
+  m_MouseStartLocation = event->localPos().toPoint();
+  update();
+}
+
+void PanoramaPane::mouseReleaseEvent(QMouseEvent* event) {
+  if (m_SelectedImage.isNull()) return;
+
+  UpdateImplicitSize();
+  event->accept();
 }
