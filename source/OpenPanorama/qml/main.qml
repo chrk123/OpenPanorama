@@ -52,18 +52,22 @@ ApplicationWindow {
 
             color: "black"
 
-            /*ListView {
+            Flickable {
                 anchors.fill: parent
+                contentHeight: pane.implicitHeight
+                contentWidth: pane.implicitWidth
 
-                model: imageModel
+                flickableDirection: Flickable.HorizontalAndVerticalFlick
 
-                delegate: Image {
-                    source: "image://images/" + model.uuid
+                ScrollBar.vertical: ScrollBar { }
+                ScrollBar.horizontal: ScrollBar { }
+
+                PanoramaPane {
+                    id: pane
+
+                    anchors.fill: parent
+                    model: imageModel
                 }
-            }*/
-            PanoramaPane {
-                anchors.fill: parent
-                model: imageModel
             }
         }
 

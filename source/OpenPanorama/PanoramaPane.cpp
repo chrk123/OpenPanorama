@@ -4,17 +4,15 @@
 #include <qquickitem.h>
 
 #include <QPainter>
-#include <cmath>
 
-PanoramaPane::PanoramaPane(QQuickItem* parent)
-    : QQuickPaintedItem(parent), m_Cols{2}, m_SelectedImage{-1} {
+PanoramaPane::PanoramaPane(QQuickItem* parent) : QQuickPaintedItem(parent) {
   setAcceptedMouseButtons(Qt::AllButtons);
-  setFlag(ItemAcceptsInputMethod, true);
+  setFlag(ItemAcceptsInputMethod);
+  setFlag(ItemHasContents);
+  setImplicitSize(50, 50);
 }
 
 void PanoramaPane::paint(QPainter* painter) {
-  QSizeF itemSize = size();
-
   QFont font = painter->font();
   font.setPixelSize(20);
   painter->setFont(font);
@@ -22,55 +20,70 @@ void PanoramaPane::paint(QPainter* painter) {
 
   auto const num_items = m_Model->rowCount();
 
-  int rows = std::ceil(num_items / static_cast<float>(m_Cols));
-
-  int dx = itemSize.width() / m_Cols;
-  int dy = itemSize.height() / (rows == 0 ? 1 : rows);
-
-  // TODO: Use ImageProvider
-
   for (int i = 0; i < num_items; i++) {
-    int col = i % m_Cols;
-    int row = i / m_Cols;
-    QRectF const target(col * dx, row * dy, dx, dy);
-    auto const img =
-        m_Model->data(m_Model->index(i, 0), Qt::UserRole).value<QImage>();
+    auto const model_idx = m_Model->index(i, 0);
+    auto const img = m_Model->data(model_idx, m_Model->roleNames().key("image"))
+                         .value<QImage>();
+    auto const uuid = m_Model->data(model_idx, m_Model->roleNames().key("uuid"))
+                          .value<QUuid>();
+
+    auto const& target = m_Locations.at(uuid);
+
     painter->drawImage(target, img, img.rect());
 
-    if (i == m_SelectedImage) {
-      painter->drawRect(QRectF{target.x(), target.y(),
-                               target.width() - painter->pen().widthF(),
-                               target.height() - painter->pen().widthF()});
+    if (uuid == m_SelectedImage) {
+      painter->drawRect(QRect{target.x(), target.y(),
+                              target.width() - painter->pen().width(),
+                              target.height() - painter->pen().width()});
     }
   }
 }
 
+void PanoramaPane::OnModelChanged() {
+  auto const num_items = m_Model->rowCount();
+
+  int max_x = 50;
+  int max_y = 50;
+
+  for (int i = 0; i < num_items; i++) {
+    auto const model_idx = m_Model->index(i, 0);
+
+    auto const img = m_Model->data(model_idx, m_Model->roleNames().key("image"))
+                         .value<QImage>();
+    auto const uuid = m_Model->data(model_idx, m_Model->roleNames().key("uuid"))
+                          .value<QUuid>();
+
+    auto const& target =
+        m_Locations.try_emplace(uuid, img.rect()).first->second;
+
+    if (target.bottomRight().y() > max_y) {
+      max_y = target.bottomRight().y();
+    }
+
+    if (target.bottomRight().x() > max_x) {
+      max_x = target.bottomRight().x();
+    }
+  }
+  setImplicitSize(max_x, max_y);
+  update();
+}
+
 void PanoramaPane::SetModel(QAbstractItemModel* model) {
   m_Model = model;
-  connect(m_Model, SIGNAL(rowsInserted(QModelIndex, int, int)), SLOT(update()));
-  connect(m_Model, SIGNAL(modelReset()), SLOT(update()));
+  connect(m_Model, SIGNAL(rowsInserted(QModelIndex, int, int)),
+          SLOT(OnModelChanged()));
+  connect(m_Model, SIGNAL(modelReset()), SLOT(OnModelChanged()));
 }
 
 void PanoramaPane::mousePressEvent(QMouseEvent* event) {
-  auto const num_of_images = m_Model->rowCount();
+  auto const& location = event->localPos().toPoint();
+  auto const it = std::find_if(m_Locations.cbegin(), m_Locations.cend(),
+                               [&location](auto const& key_val) {
+                                 return key_val.second.contains(location);
+                               });
 
-  // if we do not have any images, we can't select it
-  if (num_of_images == 0) return;
-
-  int rows = std::ceil(num_of_images / static_cast<float>(m_Cols));
-
-  int dx = size().width() / m_Cols;
-  int dy = size().height() / rows;
-
-  auto const& position = event->localPos();
-
-  // position on the grid
-  int idx_y = position.y() / dy;
-  int idx_x = position.x() / dx;
-  int idx = idx_y * m_Cols + idx_x;
-
-  if (idx < num_of_images) {
-    m_SelectedImage = idx;
+  if (it != m_Locations.cend()) {
+    m_SelectedImage = it->first;
     update();
   }
 }
