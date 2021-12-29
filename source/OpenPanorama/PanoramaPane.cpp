@@ -111,6 +111,14 @@ void PanoramaPane::mouseMoveEvent(QMouseEvent* event) {
   m_MouseStartLocation = local_mouse_pos;
 
   m_Locations.at(m_SelectedImage).translate(movement);
+
+  auto const top_left = m_Locations.at(m_SelectedImage).topLeft();
+  if (top_left.y() < 0)
+    m_Locations.at(m_SelectedImage).translate(0, -top_left.y());
+  if (top_left.x() < 0)
+    m_Locations.at(m_SelectedImage).translate(-top_left.x(), 0);
+
+  UpdateImplicitSize();
   update();
 }
 
