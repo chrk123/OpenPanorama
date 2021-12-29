@@ -4,6 +4,7 @@
 #include <qwindowdefs.h>
 
 #include <QQuickPaintedItem>
+#include <QTransform>
 #include <QUuid>
 #include <map>
 
@@ -19,6 +20,7 @@ class PanoramaPane : public QQuickPaintedItem {
   void mousePressEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;
+  void wheelEvent(QWheelEvent* event) override;
 
   void UpdateImplicitSize();
   void SetModel(QAbstractItemModel* model);
@@ -27,10 +29,14 @@ class PanoramaPane : public QQuickPaintedItem {
   void OnModelChanged();
 
  private:
+  QPoint LocalEventPosToLocalFrame(QPointF const& local_pos) const;
+  QPointF GetCurrentScaling() const;
+
+ private:
   QUuid m_SelectedImage;
   QAbstractItemModel* m_Model;
 
   std::map<QUuid, QRect> m_Locations;
   QPoint m_MouseStartLocation;
-  QPoint m_Movement;
+  QTransform m_Transformation;
 };
