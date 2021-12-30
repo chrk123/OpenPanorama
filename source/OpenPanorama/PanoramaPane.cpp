@@ -16,7 +16,9 @@ void PanoramaPane::paint(QPainter* painter) {
   QFont font = painter->font();
   font.setPixelSize(20);
   painter->setFont(font);
-  painter->setPen(Qt::red);
+
+  QPen pen(Qt::red, 20, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+  painter->setPen(pen);
   painter->setTransform(m_Transformation);
 
   auto const num_items = m_Model->rowCount();
@@ -30,13 +32,27 @@ void PanoramaPane::paint(QPainter* painter) {
 
     auto const& target = m_Locations.at(uuid);
 
+    auto const [non_overlapping_region, overlapping_region] =
+        IntersectionPartition(uuid);
+
+    painter->setClipping(true);
+    painter->setClipRegion(non_overlapping_region);
     painter->drawImage(target, img, img.rect());
 
-    if (uuid == m_SelectedImage) {
-      painter->drawRect(QRect{target.x(), target.y(),
-                              target.width() - painter->pen().width(),
-                              target.height() - painter->pen().width()});
-    }
+    painter->setClipRegion(overlapping_region);
+    painter->setOpacity(0.5);
+    painter->drawImage(target, img, img.rect());
+
+    painter->setOpacity(1);
+    painter->setClipping(false);
+  }
+
+  try {
+    auto const& selected = m_Locations.at(m_SelectedImage);
+    painter->drawRect(QRect{selected.x(), selected.y(),
+                            selected.width() - painter->pen().width() / 2,
+                            selected.height() - painter->pen().width() / 2});
+  } catch (std::out_of_range const&) {
   }
 }
 
@@ -149,4 +165,20 @@ QPoint PanoramaPane::LocalEventPosToLocalFrame(const QPointF& local_pos) const {
 
 QPointF PanoramaPane::GetCurrentScaling() const {
   return QPointF{m_Transformation.m11(), m_Transformation.m22()};
+}
+
+std::pair<QRegion, QRegion> PanoramaPane::IntersectionPartition(
+    QUuid id) const {
+  auto const image_rect = m_Locations.at(id);
+
+  auto intersection_part = std::accumulate(
+      m_Locations.cbegin(), m_Locations.cend(), QRegion{},
+      [&id, &image_rect](auto acc, auto const& location_pair) {
+        if (location_pair.first == id) return acc;
+
+        return acc.united(image_rect.intersected(location_pair.second));
+      });
+
+  return {QRegion{image_rect}.subtracted(intersection_part),
+          std::move(intersection_part)};
 }

@@ -7,6 +7,7 @@
 #include <QTransform>
 #include <QUuid>
 #include <map>
+#include <QRegion>
 
 class PanoramaPane : public QQuickPaintedItem {
   Q_OBJECT
@@ -31,6 +32,7 @@ class PanoramaPane : public QQuickPaintedItem {
  private:
   QPoint LocalEventPosToLocalFrame(QPointF const& local_pos) const;
   QPointF GetCurrentScaling() const;
+  std::pair<QRegion, QRegion> IntersectionPartition(QUuid id) const;
 
  private:
   QUuid m_SelectedImage;
