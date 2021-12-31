@@ -4,10 +4,13 @@
 #include <qwindowdefs.h>
 
 #include <QQuickPaintedItem>
+#include <QRegion>
+#include <QThread>
 #include <QTransform>
 #include <QUuid>
 #include <map>
-#include <QRegion>
+
+#include "HeavyDutyWorker.h"
 
 class PanoramaPane : public QQuickPaintedItem {
   Q_OBJECT
@@ -26,8 +29,18 @@ class PanoramaPane : public QQuickPaintedItem {
   void UpdateImplicitSize();
   void SetModel(QAbstractItemModel* model);
 
+  ~PanoramaPane() {
+    m_HeavyDuties.quit();
+    m_HeavyDuties.wait();
+  }
+
  public slots:
   void OnModelChanged();
+  void UpdateFeatureDetectionInProgress(bool);
+  void UpdateCorrespondences(std::vector<std::pair<QPoint, QPoint>>);
+
+  signals:
+   void StartFeatureDetection(QImage, QImage, QRect);
 
  private:
   QPoint LocalEventPosToLocalFrame(QPointF const& local_pos) const;
@@ -41,4 +54,10 @@ class PanoramaPane : public QQuickPaintedItem {
   std::map<QUuid, QRect> m_Locations;
   QPoint m_MouseStartLocation;
   QTransform m_Transformation;
+
+  std::vector<std::pair<QPoint, QPoint>> m_Correspondences;
+  bool m_FeatureDetectionInProgress{false};
+
+  QThread m_HeavyDuties;
+  HeavyDutyWorker m_Worker;
 };

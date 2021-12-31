@@ -15,8 +15,8 @@ set(SOURCE_FILES
     PanoramaImageModel.hpp
     PanoramaPane.cpp
     PanoramaPane.hpp
-)
+    HeavyDutyWorker.cpp
+    HeavyDutyWorker.h)
 
 add_executable(OpenPanorama ${SOURCE_FILES})
-
-target_link_libraries(OpenPanorama Qt5::QuickControls2 Qt5::Core Qt5::Qml Qt5::Quick Qt5::Gui)
+target_link_libraries(OpenPanorama CV Qt5::QuickControls2 Qt5::Core Qt5::Qml Qt5::Quick Qt5::Gui)

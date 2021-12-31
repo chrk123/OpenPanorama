@@ -10,11 +10,25 @@ PanoramaPane::PanoramaPane(QQuickItem* parent) : QQuickPaintedItem(parent) {
   setFlag(ItemAcceptsInputMethod);
   setFlag(ItemHasContents);
   setImplicitSize(50, 50);
+
+  qRegisterMetaType<DescriptorStrategy::point_correspondence_t>();
+  qRegisterMetaType<std::vector<DescriptorStrategy::point_correspondence_t>>();
+
+  m_Worker.moveToThread(&m_HeavyDuties);
+
+  connect(this, &PanoramaPane::StartFeatureDetection, &m_Worker,
+          &HeavyDutyWorker::DetectFeatures);
+  connect(&m_Worker, &HeavyDutyWorker::featureDetectionInProgressChanged, this,
+          &PanoramaPane::UpdateFeatureDetectionInProgress);
+  connect(&m_Worker, &HeavyDutyWorker::featuresReady, this,
+          &PanoramaPane::UpdateCorrespondences);
+
+  m_HeavyDuties.start();
 }
 
 void PanoramaPane::paint(QPainter* painter) {
   QFont font = painter->font();
-  font.setPixelSize(20);
+  font.setPixelSize(100);
   painter->setFont(font);
 
   QPen pen(Qt::red, 20, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
@@ -52,7 +66,18 @@ void PanoramaPane::paint(QPainter* painter) {
     painter->drawRect(QRect{selected.x(), selected.y(),
                             selected.width() - painter->pen().width() / 2,
                             selected.height() - painter->pen().width() / 2});
+
+    for (auto const [p1, p2] : m_Correspondences) {
+      painter->drawPoint(p1 + QPoint{selected.x(), selected.y()});
+    }
+
   } catch (std::out_of_range const&) {
+  }
+
+  if (m_FeatureDetectionInProgress) {
+    QRectF center{width() / 3, height() / 3, 2 * width() / 3, 2 * height() / 3};
+
+    painter->drawText(center, QStringLiteral("feature detection in progress"));
   }
 }
 
@@ -110,6 +135,15 @@ void PanoramaPane::mousePressEvent(QMouseEvent* event) {
   if (it != m_Locations.cend()) {
     m_SelectedImage = it->first;
     m_MouseStartLocation = location;
+
+    auto ret =
+        m_Model->match(m_Model->index(0, 0), m_Model->roleNames().key("uuid"),
+                       m_SelectedImage, 1, Qt::MatchExactly);
+    auto const img =
+        m_Model->data(ret.first(), m_Model->roleNames().key("image"))
+            .value<QImage>();
+
+    emit StartFeatureDetection(img, img, QRect{});
   } else {
     m_SelectedImage = QUuid{};
   }
@@ -181,4 +215,13 @@ std::pair<QRegion, QRegion> PanoramaPane::IntersectionPartition(
 
   return {QRegion{image_rect}.subtracted(intersection_part),
           std::move(intersection_part)};
+}
+void PanoramaPane::UpdateFeatureDetectionInProgress(bool is_running) {
+  m_FeatureDetectionInProgress = is_running;
+  update();
+}
+void PanoramaPane::UpdateCorrespondences(
+    std::vector<std::pair<QPoint, QPoint>> res) {
+  m_Correspondences = std::move(res);
+  update();
 }
