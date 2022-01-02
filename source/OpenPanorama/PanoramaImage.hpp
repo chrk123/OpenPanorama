@@ -16,8 +16,12 @@ class PanoramaImage : public QObject {
 
   QImage GetImage() const;
   QUuid GetUuid() const;
+  QRect GetLocation() const;
+
+  void Translate(QPoint const&);
 
  private:
   QImage m_Image;
   QUuid m_Uuid;
+  QRect m_Location;
 };

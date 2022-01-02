@@ -15,16 +15,21 @@ class PanoramaImageModel : public QAbstractItemModel {
  public:
   Q_INVOKABLE void AddImageFromFile(QUrl filename);
   Q_INVOKABLE void Reset();
+  void translateImage(QUuid id, QPoint const& translation);
+  std::pair<QRegion, QRegion> GetOverlap(QUuid) const;
 
-  QHash<int, QByteArray> roleNames() const;
+  QUuid GetImageAtLocation(QPoint const&) const;
 
-  int columnCount(QModelIndex const& parent) const;
-  int rowCount(QModelIndex const& parent) const;
+  QHash<int, QByteArray> roleNames() const override;
+
+  int columnCount(QModelIndex const& parent = QModelIndex{}) const override;
+  int rowCount(QModelIndex const& parent = QModelIndex{}) const override;
 
   QModelIndex index(int row, int column,
-                    QModelIndex const& parent = QModelIndex()) const;
-  QModelIndex parent(QModelIndex const& index) const;
-  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const;
+                    QModelIndex const& parent = QModelIndex{}) const override;
+  QModelIndex parent(QModelIndex const& index) const override;
+  QVariant data(QModelIndex const& index,
+                int role = Qt::DisplayRole) const override;
 
  private:
   std::vector<std::unique_ptr<PanoramaImage>> m_Images;

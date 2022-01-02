@@ -12,9 +12,11 @@
 
 #include "HeavyDutyWorker.h"
 
+class PanoramaImageModel;
+
 class PanoramaPane : public QQuickPaintedItem {
   Q_OBJECT
-  Q_PROPERTY(QAbstractItemModel* model MEMBER m_Model WRITE SetModel)
+  Q_PROPERTY(PanoramaImageModel* model MEMBER m_Model WRITE SetModel)
 
  public:
   explicit PanoramaPane(QQuickItem* parent = nullptr);
@@ -27,7 +29,7 @@ class PanoramaPane : public QQuickPaintedItem {
   void wheelEvent(QWheelEvent* event) override;
 
   void UpdateImplicitSize();
-  void SetModel(QAbstractItemModel* model);
+  void SetModel(PanoramaImageModel* model);
 
   ~PanoramaPane() {
     m_HeavyDuties.quit();
@@ -45,13 +47,11 @@ class PanoramaPane : public QQuickPaintedItem {
  private:
   QPoint LocalEventPosToLocalFrame(QPointF const& local_pos) const;
   QPointF GetCurrentScaling() const;
-  std::pair<QRegion, QRegion> IntersectionPartition(QUuid id) const;
 
  private:
   QUuid m_SelectedImage;
-  QAbstractItemModel* m_Model;
+  PanoramaImageModel* m_Model;
 
-  std::map<QUuid, QRect> m_Locations;
   QPoint m_MouseStartLocation;
   QTransform m_Transformation;
 

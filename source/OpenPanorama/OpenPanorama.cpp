@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
 
   QQmlApplicationEngine engine;
   qmlRegisterType<PanoramaPane>("OpenPanorama", 1, 0, "PanoramaPane");
+  qmlRegisterType<PanoramaImageModel>("OpenPanorama", 1, 0, "");
   engine.addImageProvider("images", &image_provider);
   engine.rootContext()->setContextProperty("imageModel", image_model.get());
   engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
